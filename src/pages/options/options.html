@@ -203,6 +203,25 @@
         </table>
       </section>
       <section class="settings-block">
+        <table class="option" aria-label="Toggle Medium redirects">
+          <tbody>
+            <tr>
+              <td>
+                <h1 data-localise="__MSG_disableMedium__" class="new-badge" data-new-badge>Medium Redirects</h1>
+              </td>
+              <td>
+                <input
+                  aria-hidden="true"
+                  id="disable-medium"
+                  type="checkbox"
+                />&nbsp;
+                <label for="disable-medium" class="checkbox-label"></label>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section class="settings-block">
         <h1 data-localise="__MSG_nitterInstance__">Nitter Instance</h1>
         <div class="autocomplete">
           <input
@@ -284,6 +303,16 @@
             id="wikipedia-instance"
             type="url"
             placeholder="https://wikiless.org"
+          />
+        </div>
+      </section>
+      <section class="settings-block">
+        <h1 data-localise="__MSG_mediumInstance__">Scribe Instance</h1>
+        <div class="autocomplete">
+          <input
+            id="medium-instance"
+            type="url"
+            placeholder="https://scribe.rip"
           />
         </div>
       </section>

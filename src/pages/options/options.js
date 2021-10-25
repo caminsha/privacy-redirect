@@ -9,6 +9,7 @@ import redditHelper from "../../assets/javascripts/helpers/reddit.js";
 import searchHelper from "../../assets/javascripts/helpers/google-search.js";
 import googleTranslateHelper from "../../assets/javascripts/helpers/google-translate.js";
 import wikipediaHelper from "../../assets/javascripts/helpers/wikipedia.js";
+import mediumHelper from "../../assets/javascripts/helpers/medium.js";
 
 const nitterInstances = twitterHelper.redirects;
 const invidiousInstances = youtubeHelper.redirects;
@@ -18,6 +19,7 @@ const redditInstances = redditHelper.redirects;
 const searchEngineInstances = searchHelper.redirects;
 const simplyTranslateInstances = googleTranslateHelper.redirects;
 const wikipediaInstances = wikipediaHelper.redirects;
+const mediumInstances = mediumHelper.redirects;
 const autocompletes = [
   { id: "nitter-instance", instances: nitterInstances },
   { id: "invidious-instance", instances: invidiousInstances },
@@ -30,6 +32,7 @@ const autocompletes = [
   },
   { id: "simply-translate-instance", instances: simplyTranslateInstances },
   { id: "wikipedia-instance", instances: wikipediaInstances },
+  { id: "medium-instance", instances: mediumInstances },
 ];
 const domparser = new DOMParser();
 
@@ -43,6 +46,7 @@ let simplyTranslateInstance = document.getElementById(
   "simply-translate-instance"
 );
 let wikipediaInstance = document.getElementById("wikipedia-instance");
+let mediumInstance = document.getElementById("medium-instance");
 let disableNitter = document.getElementById("disable-nitter");
 let disableInvidious = document.getElementById("disable-invidious");
 let disableBibliogram = document.getElementById("disable-bibliogram");
@@ -53,6 +57,7 @@ let disableSimplyTranslate = document.getElementById(
   "disable-simply-translate"
 );
 let disableWikipedia = document.getElementById("disable-wikipedia");
+let disableMedium = document.getElementById("disable-medium");
 let alwaysProxy = document.getElementById("always-proxy");
 let onlyEmbeddedVideo = document.getElementById("only-embed");
 let videoQuality = document.getElementById("video-quality");
@@ -106,6 +111,7 @@ browser.storage.sync.get(
     "searchEngineInstance",
     "simplyTranslateInstance",
     "wikipediaInstance",
+    "mediumInstance",
     "disableNitter",
     "disableInvidious",
     "disableBibliogram",
@@ -114,6 +120,7 @@ browser.storage.sync.get(
     "disableSearchEngine",
     "disableSimplyTranslate",
     "disableWikipedia",
+    "disableMedium",
     "alwaysProxy",
     "onlyEmbeddedVideo",
     "videoQuality",
@@ -143,6 +150,7 @@ browser.storage.sync.get(
       (result.searchEngineInstance && result.searchEngineInstance.link) || "";
     simplyTranslateInstance.value = result.simplyTranslateInstance || "";
     wikipediaInstance.value = result.wikipediaInstance || "";
+    mediumInstance.value = result.mediumInstance || "";
     disableNitter.checked = !result.disableNitter;
     disableInvidious.checked = !result.disableInvidious;
     disableBibliogram.checked = !result.disableBibliogram;
@@ -151,6 +159,7 @@ browser.storage.sync.get(
     disableSearchEngine.checked = !result.disableSearchEngine;
     disableSimplyTranslate.checked = !result.disableSimplyTranslate;
     disableWikipedia.checked = !result.disableWikipedia;
+    disableMedium.checked = !result.disableMedium;
     alwaysProxy.checked = result.alwaysProxy;
     onlyEmbeddedVideo.checked = result.onlyEmbeddedVideo;
     videoQuality.value = result.videoQuality || "";
@@ -349,6 +358,18 @@ wikipediaInstance.addEventListener(
   wikipediaInstanceChange
 );
 
+const mediumInstanceChange = debounce(() => {
+  if (mediumInstance.checkValidity()) {
+    browser.storage.sync.set({
+      mediumInstance: parseURL(mediumInstance.value),
+    });
+  }
+}, 500);
+mediumInstance.addEventListener(
+  "input",
+  mediumInstanceChange
+);
+
 disableNitter.addEventListener("change", (event) => {
   browser.storage.sync.set({ disableNitter: !event.target.checked });
 });
@@ -379,6 +400,10 @@ disableSimplyTranslate.addEventListener("change", (event) => {
 
 disableWikipedia.addEventListener("change", (event) => {
   browser.storage.sync.set({ disableWikipedia: !event.target.checked });
+});
+
+disableMedium.addEventListener("change", (event) => {
+  browser.storage.sync.set({ disableMedium: !event.target.checked });
 });
 
 alwaysProxy.addEventListener("change", (event) => {

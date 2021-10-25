@@ -9,6 +9,7 @@ import redditHelper from "../../assets/javascripts/helpers/reddit.js";
 import searchHelper from "../../assets/javascripts/helpers/google-search.js";
 import googleTranslateHelper from "../../assets/javascripts/helpers/google-translate.js";
 import wikipediaHelper from "../../assets/javascripts/helpers/wikipedia.js";
+import mediumHelper from "../../assets/javascripts/helpers/medium.js";
 
 const nitterInstances = twitterHelper.redirects;
 const twitterDomains = twitterHelper.targets;
@@ -37,6 +38,9 @@ const googleTranslateDomains = googleTranslateHelper.targets;
 const wikipediaInstances = wikipediaHelper.redirects;
 const wikipediaDefault = wikipediaInstances[0];
 const wikipediaRegex = wikipediaHelper.targets;
+const mediumInstances = mediumHelper.redirects;
+const mediumDefault = mediumInstances[0];
+const mediumRegex = mediumHelper.targets;
 
 let disableNitter;
 let disableInvidious;
@@ -46,6 +50,7 @@ let disableReddit;
 let disableSearchEngine;
 let disableSimplyTranslate;
 let disableWikipedia;
+let disableMedium;
 let nitterInstance;
 let invidiousInstance;
 let bibliogramInstance;
@@ -54,6 +59,7 @@ let redditInstance;
 let searchEngineInstance;
 let simplyTranslateInstance;
 let wikipediaInstance;
+let mediumInstance;
 let alwaysProxy;
 let onlyEmbeddedVideo;
 let videoQuality;
@@ -80,6 +86,7 @@ browser.storage.sync.get(
     "searchEngineInstance",
     "simplyTranslateInstance",
     "wikipediaInstance",
+    "mediumInstance",
     "disableNitter",
     "disableInvidious",
     "disableBibliogram",
@@ -88,6 +95,7 @@ browser.storage.sync.get(
     "disableSearchEngine",
     "disableSimplyTranslate",
     "disableWikipedia",
+    "disableMedium",
     "alwaysProxy",
     "onlyEmbeddedVideo",
     "videoQuality",
@@ -112,6 +120,7 @@ browser.storage.sync.get(
     simplyTranslateInstance =
       result.simplyTranslateInstance || simplyTranslateDefault;
     wikipediaInstance = result.wikipediaInstance || wikipediaDefault;
+    mediumInstance = result.mediumInstance || mediumDefault;
     disableNitter = result.disableNitter;
     disableInvidious = result.disableInvidious;
     disableBibliogram = result.disableBibliogram;
@@ -119,6 +128,7 @@ browser.storage.sync.get(
     disableReddit = result.disableReddit;
     disableSearchEngine = result.disableSearchEngine;
     disableWikipedia = result.disableWikipedia;
+    disableMedium = result.disableMedium;
     disableSimplyTranslate = result.disableSimplyTranslate;
     alwaysProxy = result.alwaysProxy;
     onlyEmbeddedVideo = result.onlyEmbeddedVideo;
@@ -166,6 +176,9 @@ browser.storage.onChanged.addListener((changes) => {
   if ("wikipediaInstance" in changes) {
     wikipediaInstance = changes.wikipediaInstance.newValue || wikipediaDefault;
   }
+  if ("mediumInstance" in changes) {
+    mediumInstance = changes.mediumInstance.newValue || mediumDefault;
+  }
   if ("redditInstance" in changes) {
     redditInstance = changes.redditInstance.newValue || redditDefault;
   }
@@ -195,6 +208,9 @@ browser.storage.onChanged.addListener((changes) => {
   }
   if ("disableWikipedia" in changes) {
     disableWikipedia = changes.disableWikipedia.newValue;
+  }
+  if ("disableMedium" in changes) {
+    disableMedium = changes.disableMedium.newValue;
   }
   if ("alwaysProxy" in changes) {
     alwaysProxy = changes.alwaysProxy.newValue;
@@ -577,6 +593,14 @@ function redirectWikipedia(url, initiator) {
   else return null;
 }
 
+function redirectMedium(url, initiator) {
+  if (disableMedium || isException(url, initiator)) {
+    return null;
+  }
+  return `${mediumInstance}${url.pathname}`;
+
+}
+
 browser.webRequest.onBeforeRequest.addListener(
   (details) => {
     const url = new URL(details.url);
@@ -619,7 +643,12 @@ browser.webRequest.onBeforeRequest.addListener(
       redirect = {
         redirectUrl: redirectWikipedia(url, initiator),
       };
+    } else if (url.host.match(mediumRegex)) {
+      redirect = {
+        redirectUrl: redirectMedium(url, initiator),
+      };
     }
+
     if (redirect && redirect.redirectUrl) {
       console.info(
         "Redirecting",
